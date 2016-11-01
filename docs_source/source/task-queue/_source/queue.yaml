@@ -1,0 +1,7 @@
+queue:
+- name: default
+  rate: 1/s # 1秒に1回処理する
+  retry_parameters:
+    # リトライの最大回数の設定
+    # タスクはエラーになると自動でリトライしてくれます
+    task_retry_limit: 3
