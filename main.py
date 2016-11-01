@@ -12,11 +12,15 @@ import os
 import webapp2
 from google.appengine.api import app_identity
 from google.appengine.api import urlfetch
+from google.cloud import vision
+from oauth2client.service_account import ServiceAccountCredentials
 
 import config
 
 
 ENDPOINT = 'https://api.line.me/v2/bot/message/reply'
+
+SCOPE = ['https://www.googleapis.com/auth/cloud-platform']
 
 
 class MainHandler(webapp2.RequestHandler):
@@ -87,11 +91,28 @@ def upload_to_gcs(event):
         with gcs.open(file_name, 'w', content_type='image/jpeg') as f:
             f.write(image)
 
-        message = u'保存しました。\nBucket:{}\nObject:{}'.format(bucket_name, file_name)
-        text_reply(event['replyToken'], message)
+        return bucket_name, event['message']['id']
 
     except Exception, e:
         logging.error('Failed get_image')
+        raise e
+
+
+def request_vision_api(bucket_name, file_name):
+    """Vision APIにリクエストを送信します"""
+    try:
+        credentials = ServiceAccountCredentials.from_json_keyfile_name(config.KEY_FILE,
+                                                                       scopes=SCOPE)
+        source_uri = 'gs://{}/{}'.format(bucket_name, file_name)
+        logging.debug('source_uri: {}'.format(source_uri))
+
+        client = vision.Client(project=app_identity.get_application_id(),
+                               credentials=credentials)
+        image = client.image(source_uri=source_uri)
+        return image.detect_labels(limit=5)
+
+    except Exception, e:
+        logging.error('failed request vision api.')
         raise e
 
 
@@ -121,7 +142,16 @@ class CallbackHandler(webapp2.RequestHandler):
 
                 elif event['message']['type'] == 'image':
                     # 画像が送られた場合
-                    upload_to_gcs(event)
+
+                    bucket_name, file_name = upload_to_gcs(event)
+                    labels = request_vision_api(bucket_name, file_name)
+
+                    result = ''
+                    for label in labels:
+                        result += '{}: {}\n'.format(label.description, label.score)
+
+                    message = u'この写真には、\n\n{}のようなものが写っているよ'.format(result)
+                    text_reply(event['replyToken'], message)
 
         except Exception, e:
             logging.error(e)
