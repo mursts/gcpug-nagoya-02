@@ -1,11 +1,22 @@
+project: your-project-id # 各自のプロジェクトIDを指定
+version: 1
 runtime: python27
 api_version: 1
 threadsafe: yes
 
+# ルーティング
 handlers:
-- url: .*
-  script: main.app
+# task queue
+- url: /task/messaging
+  script: worker.app
+  login: admin
 
+# 上記以外はmain.pyに向けます
+- url: .*
+  script: main.app # main.pyではない
+
+# 使用ライブラリの指定
 libraries:
+# Webフレームワークのwebapp2を使用する
 - name: webapp2
-version: "2.5.2"
+  version: "2.5.2"
