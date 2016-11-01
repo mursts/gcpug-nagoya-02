@@ -11,6 +11,11 @@ handlers:
   script: worker.app
   login: admin
 
+# cron
+- url: /cron/.*
+  script: cron.app
+  login: admin
+
 # 上記以外はmain.pyに向けます
 - url: .*
   script: main.app # main.pyではない
