@@ -16,7 +16,7 @@ main.py
 .. literalinclude:: _source/main.py
    :language: python
    :linenos:
-   :emphasize-lines: 9,12,53-90,117-119
+   :emphasize-lines: 5,13-14,58-95,122-124
 
 
 .. note::

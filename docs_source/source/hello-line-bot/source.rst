@@ -21,8 +21,8 @@ main.py
 .. literalinclude:: _source/main.py
    :language: python
    :linenos:
-   :emphasize-lines: 4-6,9,11,19-75,77
+   :emphasize-lines: 4-9,12,14,16,24-80,84
 
 .. note::
 
-   既読スルーされる場合は、`管理コンソール <https://console.cloud.google.com>`_ の[ログ]でログを確認しましょう
+   既読スルーされる場合はエラーになっている場合があります、`管理コンソール <https://console.cloud.google.com>`_ の[ログ]でログを確認しましょう

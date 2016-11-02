@@ -30,6 +30,9 @@
   
 
   
+        <link rel="index" title="索引"
+              href="../genindex.html"/>
+        <link rel="search" title="検索" href="../search.html"/>
     <link rel="top" title="GCPUG Nagoya #2 GAE/Py Handson 1.0 ドキュメント" href="../index.html"/>
         <link rel="up" title="Hello LINE bot" href="index.html"/>
         <link rel="next" title="Cloud Storageに画像をアップロードする" href="../cloud-storage/index.html"/>
@@ -99,7 +102,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../cloud-vision-api/index.html">Cloud Vision APIで画像解析をする</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../task-queue/index.html">Task Queueで非同期に処理をする</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../cron/index.html">定期的にメッセージを送信する</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../post-process.html">終わりに</a></li>
 </ul>
 
             
@@ -252,24 +254,24 @@
 <span class="hll"><span class="kn">import</span> <span class="nn">base64</span>
 </span><span class="hll"><span class="kn">import</span> <span class="nn">hashlib</span>
 </span><span class="hll"><span class="kn">import</span> <span class="nn">hmac</span>
-</span><span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="hll"><span class="kn">import</span> <span class="nn">os</span>
+</span><span class="hll"><span class="kn">import</span> <span class="nn">json</span>
+</span><span class="hll"><span class="kn">import</span> <span class="nn">logging</span>
+</span><span class="hll"><span class="kn">import</span> <span class="nn">os</span>
 </span>
-<span class="hll"><span class="kn">import</span> <span class="nn">webapp2</span>
-</span><span class="kn">from</span> <span class="nn">google.appengine.api</span> <span class="kn">import</span> <span class="n">urlfetch</span>
+<span class="kn">import</span> <span class="nn">webapp2</span>
+<span class="hll"><span class="kn">from</span> <span class="nn">google.appengine.api</span> <span class="kn">import</span> <span class="n">urlfetch</span>
+</span>
+<span class="hll"><span class="kn">import</span> <span class="nn">config</span>
+</span>
+<span class="hll"><span class="n">ENDPOINT</span> <span class="o">=</span> <span class="s1">&#39;https://api.line.me/v2/bot/message/reply&#39;</span>
+</span>
 
-<span class="kn">import</span> <span class="nn">config</span>
+<span class="k">class</span> <span class="nc">MainHandler</span><span class="p">(</span><span class="n">webapp2</span><span class="o">.</span><span class="n">RequestHandler</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;Hello Google App Engine&#39;</span><span class="p">)</span>
 
-<span class="n">ENDPOINT</span> <span class="o">=</span> <span class="s1">&#39;https://api.line.me/v2/bot/message/reply&#39;</span>
 
-
-<span class="hll"><span class="k">class</span> <span class="nc">MainHandler</span><span class="p">(</span><span class="n">webapp2</span><span class="o">.</span><span class="n">RequestHandler</span><span class="p">):</span>
-</span><span class="hll">    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span class="hll">        <span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;Hello Google App Engine&#39;</span><span class="p">)</span>
-</span><span class="hll">
-</span><span class="hll">
-</span><span class="hll"><span class="k">def</span> <span class="nf">is_production</span><span class="p">():</span>
+<span class="hll"><span class="k">def</span> <span class="nf">is_production</span><span class="p">():</span>
 </span><span class="hll">    <span class="sd">&quot;&quot;&quot;Product環境かを確認します&quot;&quot;&quot;</span>
 </span><span class="hll">    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;SERVER_SOFTWARE&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;Google App Engine/&#39;</span><span class="p">)</span>
 </span><span class="hll">
@@ -321,21 +323,21 @@
 </span><span class="hll">
 </span><span class="hll">            <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">[</span><span class="s1">&#39;events&#39;</span><span class="p">]:</span>
 </span><span class="hll">                <span class="k">if</span> <span class="n">event</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span>
-</span>                    <span class="c1"># テキストのメッセージが送られてきた場合</span>
-<span class="hll">                    <span class="n">text_reply</span><span class="p">(</span><span class="n">event</span><span class="p">[</span><span class="s1">&#39;replyToken&#39;</span><span class="p">],</span> <span class="n">event</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">][</span><span class="s1">&#39;text&#39;</span><span class="p">])</span>
+</span><span class="hll">                    <span class="c1"># テキストのメッセージが送られてきた場合</span>
+</span><span class="hll">                    <span class="n">text_reply</span><span class="p">(</span><span class="n">event</span><span class="p">[</span><span class="s1">&#39;replyToken&#39;</span><span class="p">],</span> <span class="n">event</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">][</span><span class="s1">&#39;text&#39;</span><span class="p">])</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+</span><span class="hll">            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
 </span>
-        <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-
 <span class="n">app</span> <span class="o">=</span> <span class="n">webapp2</span><span class="o">.</span><span class="n">WSGIApplication</span><span class="p">([</span>
     <span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="n">MainHandler</span><span class="p">),</span>
-    <span class="p">(</span><span class="s1">&#39;/callback&#39;</span><span class="p">,</span> <span class="n">CallbackHandler</span><span class="p">),</span>
-<span class="p">],</span> <span class="n">debug</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="hll">    <span class="p">(</span><span class="s1">&#39;/callback&#39;</span><span class="p">,</span> <span class="n">CallbackHandler</span><span class="p">),</span>
+</span><span class="p">],</span> <span class="n">debug</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </pre></div>
 </td></tr></table></div>
 <div class="admonition note">
 <p class="first admonition-title">注釈</p>
-<p class="last">既読スルーされる場合は、<a class="reference external" href="https://console.cloud.google.com">管理コンソール</a> の[ログ]でログを確認しましょう</p>
+<p class="last">既読スルーされる場合はエラーになっている場合があります、<a class="reference external" href="https://console.cloud.google.com">管理コンソール</a> の[ログ]でログを確認しましょう</p>
 </div>
 </div>
 </div>
