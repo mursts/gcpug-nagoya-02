@@ -19,7 +19,10 @@ GAEとLINE Messaging APIでBotを作ってみよう
    cloud-vision-api/index
    task-queue/index
    cron/index
+<<<<<<< HEAD
    delete-project/index
+=======
+>>>>>>> d91ea4523567cfdce0b4bf3ad7d727e68a9a94af
 
 
 Indices and tables
