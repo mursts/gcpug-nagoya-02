@@ -5,8 +5,7 @@
 SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 PAPER         =
-#BUILDDIR      = build
-BUILDDIR      = ..
+BUILDDIR      = build
 SPHINXABUILD  = sphinx-autobuild
 
 # Internal variables.
@@ -53,7 +52,7 @@ clean:
 
 .PHONY: html
 html:
-	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/docs
+	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
@@ -231,3 +230,14 @@ dummy:
 livehtml:
 	$(SPHINXABUILD) -p 3000 -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
+
+gh-pages:
+	git checkout gh-pages
+	rm -rf build _sources _static
+	git checkout master source Makefile
+	git reset HEAD
+	make html
+	mv -fv build/html/* ./
+	rm -rf source Makefile build
+	git add -A
+	git commit -m "Generated gh-pages for `git log master -1 --pretty=short --abbrev-commit`" && git push origin gh-pages ; git checkout master
