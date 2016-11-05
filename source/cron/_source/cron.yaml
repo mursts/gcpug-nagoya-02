@@ -1,5 +1,0 @@
-cron:
-- description: Morning Greeting
-  url: /cron/morning_greeting
-  schedule: every day 7:00
-  timezone: Asia/Tokyo
